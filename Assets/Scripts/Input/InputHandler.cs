@@ -9,6 +9,7 @@ public class InputHandler : MonoBehaviour
     public bool IsAccelerateCamera { get; private set; }
 
     public event Action<Vector2> ZoomCamera;
+    public event Action LeftMouseButtonClecked;
 
     private void Awake()
     {
@@ -18,6 +19,7 @@ public class InputHandler : MonoBehaviour
         Actions.Input.ZoomCamera.performed += OnZoomCamera;
         Actions.Input.AccelerateCamera.started += OnAccelerateCameraClick;
         Actions.Input.AccelerateCamera.canceled += OnAccelerateCameraClick;
+        Actions.Input.LeftButtonMouse.started += OnLeftButtonMouseClicked;
     }
 
     private void OnEnable()
@@ -32,6 +34,7 @@ public class InputHandler : MonoBehaviour
         Actions.Input.ZoomCamera.performed -= OnZoomCamera;
         Actions.Input.AccelerateCamera.started -= OnAccelerateCameraClick;
         Actions.Input.AccelerateCamera.canceled -= OnAccelerateCameraClick;
+        Actions.Input.LeftButtonMouse.started -= OnLeftButtonMouseClicked;
         Actions.Disable();
     }
 
@@ -48,5 +51,10 @@ public class InputHandler : MonoBehaviour
     private void OnAccelerateCameraClick(InputAction.CallbackContext context)
     {
         IsAccelerateCamera = context.ReadValueAsButton();
+    }
+    
+    private void OnLeftButtonMouseClicked(InputAction.CallbackContext context)
+    {
+        LeftMouseButtonClecked?.Invoke();
     }
 }
