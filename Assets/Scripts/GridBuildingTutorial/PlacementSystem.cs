@@ -5,40 +5,35 @@ using UnityEngine;
 
 public class PlacementSystem : MonoBehaviour
 {
-    [SerializeField] private GameObject mouseIndicator, cellIndicator;
     [SerializeField] private InputManager inputManager;
     [SerializeField] private Grid grid;
 
     [SerializeField] private ObjectsDatabaseSO database;
-    private int selectedObjectIndex = -1;
 
     [SerializeField] private GameObject gridVisualization;
 
     private GridData floorData, furnitureData;
 
-    private Renderer previewRenderer;
+    [SerializeField] private PreviewSystem previewSystem;
 
-    private List<GameObject> placementObjects = new();
+    private Vector3Int lastDetectedPosition = Vector3Int.zero;
+
+    [SerializeField] private ObjectPlacer objectPlacer;
+
+    IBuildingState buildingState;
 
     private void Start()
     {
         StopPlacement();
         floorData = new();
-        furnitureData= new();
-        previewRenderer = cellIndicator.GetComponentInChildren<Renderer>();
+        furnitureData = new();
     }
 
     public void StartPlacement(int id)
     {
         StopPlacement();
-        selectedObjectIndex = database.objectDatas.FindIndex(data => data.ID == id);
-        if (selectedObjectIndex < 0)
-        {
-            Debug.Log($"No ID found {id}");
-            return;
-        }
         gridVisualization.SetActive(true);
-        cellIndicator.SetActive(true);
+        buildingState = new PlacementState(id, grid, previewSystem, database, floorData, furnitureData, objectPlacer);
         inputManager.OnCkicked += PlaceStructure;
         inputManager.OnExit += StopPlacement;
     }
@@ -51,48 +46,39 @@ public class PlacementSystem : MonoBehaviour
         Vector3 mousePosition = inputManager.GetSelectedMapPosition();
         Vector3Int gridPosition = grid.WorldToCell(mousePosition);
 
-        bool placementValidity = CheckPlacementValidity(gridPosition, selectedObjectIndex);
-        if (placementValidity == false)
-            return;
-
-        GameObject newObject = Instantiate(database.objectDatas[selectedObjectIndex].Prefab);
-        newObject.transform.position = grid.CellToWorld(gridPosition);
-        placementObjects.Add(newObject);
-        GridData selectedData = database.objectDatas[selectedObjectIndex].ID == 0 ? floorData : furnitureData;
-
-        selectedData.AddObjectAt(gridPosition,
-            database.objectDatas[selectedObjectIndex].Size,
-            database.objectDatas[selectedObjectIndex].ID,
-            placementObjects.Count - 1);
+        buildingState.OnAction(gridPosition);
     }
 
-    private bool CheckPlacementValidity(Vector3Int gridPosition, int selectedObjectIndex)
-    {
-        GridData selectedData = database.objectDatas[selectedObjectIndex].ID == 0 ? floorData : furnitureData;
+    //private bool CheckPlacementValidity(Vector3Int gridPosition, int selectedObjectIndex)
+    //{
+    //    GridData selectedData = database.objectDatas[selectedObjectIndex].ID == 0 ? floorData : furnitureData;
 
-        return selectedData.CanPlaceObjectAt(gridPosition, database.objectDatas[selectedObjectIndex].Size);
-    }
+    //    return selectedData.CanPlaceObjectAt(gridPosition, database.objectDatas[selectedObjectIndex].Size);
+    //}
 
     private void StopPlacement()
     {
-        selectedObjectIndex = -1;
+        if (buildingState == null)
+            return;
+
         gridVisualization.SetActive(false);
-        cellIndicator.SetActive(false);
+        buildingState.EndState();
         inputManager.OnCkicked -= PlaceStructure;
         inputManager.OnExit -= StopPlacement;
+        lastDetectedPosition = Vector3Int.zero;
+        buildingState = null;
     }
 
     private void Update()
     {
-        if (selectedObjectIndex < 0)
+        if (buildingState == null)
             return;
         Vector3 mousePosition = inputManager.GetSelectedMapPosition();
         Vector3Int gridPosition = grid.WorldToCell(mousePosition);
-
-        bool placementValidity = CheckPlacementValidity(gridPosition, selectedObjectIndex);
-        previewRenderer.material.color = placementValidity ? Color.white : Color.red;
-
-        mouseIndicator.transform.position = mousePosition;
-        cellIndicator.transform.position = grid.CellToWorld(gridPosition);
+        if (lastDetectedPosition != gridPosition)
+        {
+           buildingState.UpdateState(gridPosition);
+            lastDetectedPosition = gridPosition;
+        }
     }
 }
