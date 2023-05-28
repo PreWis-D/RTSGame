@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 892c79df143c7ea408d092f4dbe24fd1, type: 3}
+  m_Name: DataBase
+  m_EditorClassIdentifier: 
+  objectDatas:
+  - <Name>k__BackingField: Tower
+    <ID>k__BackingField: 1
+    <Size>k__BackingField: {x: 1, y: 1}
+    <Prefab>k__BackingField: {fileID: 6838946583443657227, guid: 9c9919f2daaa9734da84905d19706c1f, type: 3}
+  - <Name>k__BackingField: Barak
+    <ID>k__BackingField: 2
+    <Size>k__BackingField: {x: 2, y: 2}
+    <Prefab>k__BackingField: {fileID: 5805126744398528934, guid: 2aded6d17871a5f49a7332166c60839d, type: 3}
+  - <Name>k__BackingField: MainBase
+    <ID>k__BackingField: 3
+    <Size>k__BackingField: {x: 3, y: 3}
+    <Prefab>k__BackingField: {fileID: 7976260100040113386, guid: c369493438bc53a49b8171055b0d3cf5, type: 3}
